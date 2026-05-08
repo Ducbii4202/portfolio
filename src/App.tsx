@@ -8,6 +8,7 @@ import { Experience } from './components/Experience';
 import { Journal } from './components/Journal';
 import { Skills } from './components/Skills';
 import { Stats } from './components/Stats';
+import { Education } from './components/Education';
 import { Footer } from './components/Footer';
 
 export default function App() {
@@ -40,11 +41,12 @@ export default function App() {
       {!isLoading && (
         <main>
           <Hero />
+          <Stats />
           <Experience />
           <Works />
           <Skills />
+          <Education />
           <Journal />
-          <Stats />
           <Footer />
         </main>
       )}

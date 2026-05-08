@@ -4,45 +4,48 @@ const EXPERIENCES = [
   {
     id: 1,
     role: 'Business Analyst',
-    company: 'FI.AI Co., Ltd. · District 1, Ho Chi Minh City',
-    dateLine1: 'Mar 2025',
+    company: 'FI.AI Co., Ltd. · District 2, Ho Chi Minh City',
+    dateLine1: 'Nov 2024',
     dateLine2: '— Present',
     bullets: [
-      'Led requirement analysis for multi-platform restaurant management system across 4 user platforms',
-      'Gathered & analyzed requirements from 6+ stakeholders, defining 30+ functional requirements',
-      'Delivered BRD, user stories, and use cases reducing requirement ambiguity',
-      'Designed RBAC system for 4 user roles, enhancing security and access control',
-      'Defined requirements for blockchain wallet system with smart contract reward distribution',
-      'Conducted UAT and presented product demos to stakeholders prior to deployment'
+      'Owned the full requirement lifecycle — from discovery to UAT — in a lean startup with no formal documentation structure, designing processes and templates from scratch to support a 4-platform product (Web Admin, Merchant, Staff, Customer)',
+      'Elicited and documented 30+ functional requirements from 6+ cross-functional stakeholders spanning restaurant operations, loyalty programs, and service automation',
+      'Defined end-to-end functional requirements for a blockchain-based digital wallet supporting asset management, reward distribution, and smart contract automation',
+      'Designed RBAC (Role-Based Access Control) model across 4 user roles, strengthening system security and reducing access-related escalations during QA',
+      'Created system workflows, user journeys, and wireframes in Figma for web and mobile applications, aligning UX decisions with business logic before development handoff',
+      'Facilitated UAT sessions and delivered product demos to stakeholders at each deployment milestone'
     ],
-    tags: ['BRD', 'BPMN', 'Figma', 'Blockchain', 'UAT', 'RBAC']
+    tags: ['BRD', 'BPMN', 'Figma', 'Blockchain', 'UAT', 'RBAC', 'User Stories', 'Backlog Management']
   },
   {
     id: 2,
     role: 'Business Analyst Intern (Product Team)',
-    company: 'AmazingTech Company · Tan Phu District',
+    company: 'AmazingTech Company · Tan Phu District, Ho Chi Minh City',
     dateLine1: 'Jan 2024',
     dateLine2: '— Apr 2024',
     bullets: [
-      'Produced SRS, business process diagrams & use case documentation using Draw.io & Visual Paradigm',
-      'Wrote user stories and maintained product backlog in Agile ceremonies',
-      'Collaborated with UI/UX designers to review wireframes and improve usability',
-      'Assisted in API mapping and data flow clarification to reduce requirement misunderstandings'
+      'Analyzed requirements with Product Manager and stakeholders for a SaaS-based recruitment platform supporting enterprise intern management',
+      'Produced SRS documentation, business process diagrams (BPMN), and use case documents using Draw.io and Visual Paradigm',
+      'Wrote user stories and maintained the product backlog; participated in Agile ceremonies including sprint planning and daily stand-ups',
+      'Reviewed product wireframes with UI/UX designers to improve usability and alignment with business needs',
+      'Assisted in API mapping and data flow clarification, reducing misunderstandings during development handoff',
+      'Worked within a 4-member cross-functional Agile team, bridging communication between stakeholders and developers'
     ],
-    tags: ['SRS', 'Draw.io', 'Agile', 'API Mapping', 'User Stories']
+    tags: ['SRS', 'BPMN', 'Draw.io', 'Visual Paradigm', 'Agile', 'API Mapping', 'User Stories']
   },
   {
     id: 3,
     role: 'Property Consultant',
-    company: 'SoFo Home Company · District 9',
+    company: 'SoFo Home Company · District 9, Ho Chi Minh City',
     dateLine1: 'Mar 2021',
     dateLine2: '— Dec 2023',
     bullets: [
-      'Analyzed client requirements & financial constraints to recommend property investment options',
-      'Built and maintained strong client relationships — contributed to 20% increase in repeat customers',
-      'Managed end-to-end consultation from requirement identification to transaction completion'
+      'Analyzed client requirements and financial constraints to recommend suitable property investment options',
+      'Built and maintained strong client relationships contributing to a 20% increase in repeat customers',
+      'Provided market insights and investment analysis supporting client decision-making',
+      'Managed end-to-end consultation process from requirement identification to transaction completion'
     ],
-    tags: ['Client Management', 'Requirement Analysis', 'Market Insights']
+    tags: ['Client Management', 'Requirement Analysis', 'Market Insights', 'Stakeholder Communication']
   }
 ];
 

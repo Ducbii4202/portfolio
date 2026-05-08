@@ -1,9 +1,9 @@
 import { motion } from 'framer-motion';
 
 const STATS = [
-  { value: '1+', label: 'Years Experience' },
-  { value: '30+', label: 'Features Delivered' },
-  { value: '100%', label: 'Agile Delivery' },
+  { value: '2+', label: 'Years Experience' },
+  { value: '30+', label: 'Requirements Defined' },
+  { value: '4', label: 'Platforms Delivered' },
 ];
 
 export function Stats() {

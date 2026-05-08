@@ -123,12 +123,12 @@ export function Hero() {
           
           <div className="w-px h-5 bg-stroke mx-1 opacity-50" />
           
-          <button className="text-xs sm:text-sm rounded-full px-3 sm:px-4 py-1.5 sm:py-2 text-text-primary relative group cursor-pointer inline-flex items-center overflow-hidden">
+          <a href="mailto:ducbii0402@gmail.com" className="text-xs sm:text-sm rounded-full px-3 sm:px-4 py-1.5 sm:py-2 text-text-primary relative group cursor-pointer inline-flex items-center overflow-hidden">
              <span className="absolute inset-[-2px] accent-gradient opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
              <div className="relative z-10 bg-surface rounded-full backdrop-blur-md w-full h-full flex items-center justify-center px-4 py-2">
                 Say hi <span className="ml-1">↗</span>
              </div>
-          </button>
+          </a>
         </div>
       </motion.nav>
 
@@ -155,13 +155,13 @@ export function Hero() {
         </div>
         
         <div className="max-w-2xl text-lg md:text-xl text-muted font-medium mb-12 blur-in leading-relaxed">
-          Business Analyst with 1 year of experience in an AI startup, focused on requirement engineering, stakeholder communication, and translating business needs into functional specifications. Contributed to the delivery of multi-platform SaaS systems in Agile environments.
+          Business Analyst with nearly 2 years of experience, including 1.5 years at FI.AI — a high-velocity AI startup. Led full requirement lifecycle for a multi-platform restaurant system integrating blockchain payments and AI-powered loyalty features. Software Engineering graduate from FPT University.
         </div>
         
         <div className="inline-flex flex-col sm:flex-row items-center gap-4 blur-in">
-          <button className="rounded-full text-base font-medium px-8 py-4 transition-all hover:scale-105 bg-white text-black min-w-[160px] flex items-center justify-center">
+          <a href="#work" className="rounded-full text-base font-medium px-8 py-4 transition-all hover:scale-105 bg-white text-black min-w-[160px] flex items-center justify-center">
              View Projects
-          </button>
+          </a>
           <a href="/NguyenDucThanh_BusinessAnalyst.pdf" download="NguyenDucThanh_BusinessAnalyst.pdf" className="rounded-full text-base font-medium px-8 py-4 transition-all hover:scale-105 border border-stroke bg-transparent text-white hover:bg-surface min-w-[160px] flex items-center justify-center group relative overflow-hidden">
              <svg className="w-4 h-4 mr-2 text-muted group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
              <span>Download CV</span>
