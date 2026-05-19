@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Financial Analytics Dashboard — Power BI Demo</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f5;color:#252423;min-height:100vh}
+.pbi-header{background:#1a1a2e;padding:0 20px;display:flex;align-items:center;gap:14px;height:48px;position:sticky;top:0;z-index:100}
+.pbi-logo{display:flex;align-items:center;gap:10px}
+.pbi-logo svg{width:22px;height:22px}
+.pbi-logo-text{color:#fff;font-size:15px;font-weight:600;letter-spacing:.3px}
+.pbi-title{color:#e0e0e0;font-size:13px;margin-left:8px;padding-left:14px;border-left:1px solid rgba(255,255,255,.25)}
+.pbi-badge{margin-left:auto;background:#F2C811;color:#252423;font-size:10px;font-weight:700;padding:3px 8px;border-radius:3px;letter-spacing:.5px}
+.pbi-toolbar{background:#fff;border-bottom:1px solid #e0e0e0;padding:6px 20px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pbi-tab{padding:6px 14px;border-radius:4px;font-size:13px;cursor:pointer;color:#616161;transition:all .15s;border:none;background:transparent}
+.pbi-tab.active,.pbi-tab:hover{background:#F2C811;color:#252423;font-weight:600}
+.pbi-separator{width:1px;height:24px;background:#e0e0e0;margin:0 4px}
+.layout{display:flex;height:calc(100vh - 96px);overflow:hidden}
+.sidebar{width:260px;background:#fff;border-right:1px solid #e0e0e0;overflow-y:auto;flex-shrink:0}
+.sidebar-header{padding:12px 16px 8px;font-size:11px;font-weight:700;color:#616161;text-transform:uppercase;letter-spacing:.8px;border-bottom:1px solid #f0f0f0}
+.filter-group{padding:12px 16px;border-bottom:1px solid #f5f5f5}
+.filter-label{font-size:12px;font-weight:600;color:#3c3c3c;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.filter-label svg{width:14px;height:14px;color:#8a8a8a}
+.filter-chips{display:flex;flex-direction:column;gap:4px}
+.chip{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:4px;cursor:pointer;font-size:12px;color:#616161;transition:all .1s;user-select:none}
+.chip:hover{background:#f5f5f5}
+.chip.selected{background:#fff4cc;color:#252423;font-weight:600}
+.chip-checkbox{width:14px;height:14px;border:1.5px solid #c8c8c8;border-radius:2px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .1s}
+.chip.selected .chip-checkbox{background:#F2C811;border-color:#F2C811}
+.chip-check{display:none;color:#252423}
+.chip.selected .chip-check{display:block}
+.chip-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.slicer-range{display:flex;flex-direction:column;gap:6px;margin-top:4px}
+.slicer-range input{width:100%;accent-color:#F2C811}
+.slicer-range-labels{display:flex;justify-content:space-between;font-size:11px;color:#8a8a8a}
+.main-content{flex:1;overflow-y:auto;padding:16px}
+.canvas-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.canvas-title{font-size:15px;font-weight:700;color:#252423}
+.canvas-subtitle{font-size:12px;color:#8a8a8a;margin-top:2px}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.kpi-card{background:#fff;border:1px solid #e8e8e8;border-radius:4px;padding:14px 16px;border-top:3px solid #F2C811;position:relative;overflow:hidden}
+.kpi-card.blue{border-top-color:#118DFF}
+.kpi-card.green{border-top-color:#12B261}
+.kpi-card.red{border-top-color:#E03B3B}
+.kpi-card.purple{border-top-color:#8764B8}
+.kpi-label{font-size:11px;color:#8a8a8a;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.kpi-value{font-size:22px;font-weight:700;color:#252423;line-height:1.1}
+.kpi-sub{font-size:11px;color:#8a8a8a;margin-top:4px}
+.kpi-delta{font-size:11px;font-weight:600;padding:2px 6px;border-radius:3px;display:inline-flex;align-items:center;gap:3px;margin-top:5px}
+.kpi-delta.up{color:#12B261;background:#e8f8ef}
+.kpi-delta.down{color:#E03B3B;background:#fde8e8}
+.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.charts-grid-3{display:grid;grid-template-columns:2fr 1fr 1fr;gap:14px;margin-bottom:14px}
+.chart-card{background:#fff;border:1px solid #e8e8e8;border-radius:4px;padding:14px 16px}
+.chart-card.full{grid-column:1/-1}
+.chart-card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+.chart-card-title{font-size:13px;font-weight:700;color:#252423}
+.chart-card-subtitle{font-size:11px;color:#8a8a8a;margin-top:2px}
+.chart-menu{display:flex;gap:4px}
+.chart-btn{padding:3px 8px;border:1px solid #e0e0e0;border-radius:3px;font-size:11px;cursor:pointer;background:#fff;color:#616161;transition:all .1s}
+.chart-btn.active{background:#F2C811;border-color:#F2C811;color:#252423;font-weight:600}
+.chart-wrap{position:relative}
+.legend-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:#616161}
+.legend-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.table-wrap{overflow-x:auto;margin-top:4px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{background:#f8f8f8;padding:8px 10px;text-align:left;font-weight:700;color:#616161;font-size:11px;text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid #e8e8e8;white-space:nowrap}
+tbody td{padding:7px 10px;border-bottom:1px solid #f5f5f5;color:#252423}
+tbody tr:hover td{background:#fffbe6}
+.bar-inline{height:6px;border-radius:3px;background:#F2C811;display:inline-block}
+.badge-seg{padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;letter-spacing:.3px}
+.page-indicators{display:flex;gap:6px;margin-top:16px;justify-content:center}
+.page-dot{width:8px;height:8px;border-radius:50%;background:#e0e0e0;cursor:pointer;transition:all .15s}
+.page-dot.active{background:#F2C811;width:20px;border-radius:4px}
+.page{display:none}.page.active{display:block}
+.refresh-info{font-size:11px;color:#8a8a8a;display:flex;align-items:center;gap:5px}
+.tooltip-custom{position:absolute;background:#1a1a2e;color:#fff;padding:8px 12px;border-radius:4px;font-size:12px;pointer-events:none;z-index:200;white-space:nowrap;display:none}
+@media(max-width:900px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.charts-grid,.charts-grid-3{grid-template-columns:1fr}.sidebar{width:220px}}
+</style>
+</head>
+<body>
+
+<div class="pbi-header">
+  <div class="pbi-logo">
+    <svg viewBox="0 0 24 24" fill="none"><rect x="2" y="14" width="4" height="8" rx="1" fill="#F2C811"/><rect x="8" y="10" width="4" height="12" rx="1" fill="#F2C811" opacity=".85"/><rect x="14" y="6" width="4" height="16" rx="1" fill="#F2C811" opacity=".7"/><rect x="20" y="2" width="3" height="20" rx="1" fill="#F2C811" opacity=".55"/></svg>
+    <span class="pbi-logo-text">Power BI</span>
+  </div>
+  <span class="pbi-title">Financial Sales Analytics · Demo Report</span>
+  <span class="pbi-badge">DEMO</span>
+</div>
+
+<div class="pbi-toolbar">
+  <button class="pbi-tab active" onclick="switchPage(0,this)">📊 Overview</button>
+  <button class="pbi-tab" onclick="switchPage(1,this)">🌍 Geographic</button>
+  <button class="pbi-tab" onclick="switchPage(2,this)">📦 Product Analysis</button>
+  <button class="pbi-tab" onclick="switchPage(3,this)">📋 Data Table</button>
+  <div class="pbi-separator"></div>
+  <span class="refresh-info">🕐 Data: 2013–2014 · 700 records · Auto-refreshed</span>
+</div>
+
+<div class="layout">
+  <!-- Sidebar Filters -->
+  <div class="sidebar">
+    <div class="sidebar-header">🔽 Filters &amp; Slicers</div>
+
+    <div class="filter-group">
+      <div class="filter-label">📅 Year</div>
+      <div class="filter-chips" id="year-filters">
+        <div class="chip selected" data-filter="year" data-value="2013" onclick="toggleFilter(this)">
+          <div class="chip-checkbox"><span class="chip-check">✓</span></div>
+          <span>2013</span><span style="margin-left:auto;font-size:10px;color:#8a8a8a">350</span>
+        </div>
+        <div class="chip selected" data-filter="year" data-value="2014" onclick="toggleFilter(this)">
+          <div class="chip-checkbox"><span class="chip-check">✓</span></div>
+          <span>2014</span><span style="margin-left:auto;font-size:10px;color:#8a8a8a">350</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <div class="filter-label">🏢 Segment</div>
+      <div class="filter-chips" id="segment-filters">
+        <div class="chip selected" data-filter="segment" data-value="Government" onclick="toggleFilter(this)">
+          <div class="chip-checkbox"><span class="chip-check">✓</span></div>
+          <div class="chip-dot" style="background:#118DFF"></div><span>Government</span>
+        </div>
+        <div class="chip selected" data-filter="segment" data-value="Small Business" onclick="toggleFilter(this)">
+          <div class="chip-checkbox"><span class="chip-check">✓</span></div>
+          <div class="chip-dot" style="background:#12B261"></div><span>Small Business</span>
+        </div>
+        <div class="chip selected" data-filter="segment" data-value="Enterprise" onclick="toggleFilter(this)">
+          <div class="chip-checkbox"><span class="chip-check">✓</span></div>
+          <div class="chip-dot" style="background:#E03B3B"></div><span>Enterprise</span>
+        </div>
+        <div class="chip selected" data-filter="segment" data-value="Midmarket" onclick="toggleFilter(this)">
+          <div class="chip-checkbox"><span class="chip-check">✓</span></div>
+          <div class="chip-dot" style="background:#F2C811"></div><span>Midmarket</span>
+        </div>
+        <div class="chip selected" data-filter="segment" data-value="Channel Partners" onclick="toggleFilter(this)">
+          <div class="chip-checkbox"><span class="chip-check">✓</span></div>
+          <div class="chip-dot" style="background:#8764B8"></div><span>Channel Partners</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <div class="filter-label">🌍 Country</div>
+      <div class="filter-chips" id="country-filters">
+        <div class="chip selected" data-filter="country" data-value="United States of America" onclick="toggleFilter(this)">
+          <div class="chip-checkbox"><span class="chip-check">✓</span></div>
+          <span>🇺🇸 USA</span>
+        </div>
+        <div class="chip selected" data-filter="country" data-value="Canada" onclick="toggleFilter(this)">
+          <div class="chip-checkbox"><span class="chip-check">✓</span></div>
+          <span>🇨🇦 Canada</span>
+        </div>
+        <div class="chip selected" data-filter="country" data-value="France" onclick="toggleFilter(this)">
+          <div class="chip-checkbox"><span class="chip-check">✓</span></div>
+          <span>🇫🇷 France</span>
+        </div>
+        <div class="chip selected" data-filter="country" data-value="Germany" onclick="toggleFilter(this)">
+          <div class="chip-checkbox"><span class="chip-check">✓</span></div>
+          <span>🇩🇪 Germany</span>
+        </div>
+        <div class="chip selected" data-filter="country" data-value="Mexico" onclick="toggleFilter(this)">
+          <div class="chip-checkbox"><span class="chip-check">✓</span></div>
+          <span>🇲🇽 Mexico</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <div class="filter-label">📦 Product</div>
+      <div class="filter-chips" id="product-filters">
+        <div class="chip selected" data-filter="product" data-value="Paseo" onclick="toggleFilter(this)">
+          <div class="chip-checkbox"><span class="chip-check">✓</span></div><span>Paseo</span>
+        </div>
+        <div class="chip selected" data-filter="product" data-value="VTT" onclick="toggleFilter(this)">
+          <div class="chip-checkbox"><span class="chip-check">✓</span></div><span>VTT</span>
+        </div>
+        <div class="chip selected" data-filter="product" data-value="Velo" onclick="toggleFilter(this)">
+          <div class="chip-checkbox"><span class="chip-check">✓</span></div><span>Velo</span>
+        </div>
+        <div class="chip selected" data-filter="product" data-value="Amarilla" onclick="toggleFilter(this)">
+          <div class="chip-checkbox"><span class="chip-check">✓</span></div><span>Amarilla</span>
+        </div>
+        <div class="chip selected" data-filter="product" data-value="Montana" onclick="toggleFilter(this)">
+          <div class="chip-checkbox"><span class="chip-check">✓</span></div><span>Montana</span>
+        </div>
+        <div class="chip selected" data-filter="product" data-value="Carretera" onclick="toggleFilter(this)">
+          <div class="chip-checkbox"><span class="chip-check">✓</span></div><span>Carretera</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <div class="filter-label">🏷️ Discount Band</div>
+      <div class="filter-chips" id="discount-filters">
+        <div class="chip selected" data-filter="discount" data-value="High" onclick="toggleFilter(this)">
+          <div class="chip-checkbox"><span class="chip-check">✓</span></div>
+          <div class="chip-dot" style="background:#E03B3B"></div><span>High</span>
+        </div>
+        <div class="chip selected" data-filter="discount" data-value="Medium" onclick="toggleFilter(this)">
+          <div class="chip-checkbox"><span class="chip-check">✓</span></div>
+          <div class="chip-dot" style="background:#F2C811"></div><span>Medium</span>
+        </div>
+        <div class="chip selected" data-filter="discount" data-value="Low" onclick="toggleFilter(this)">
+          <div class="chip-checkbox"><span class="chip-check">✓</span></div>
+          <div class="chip-dot" style="background:#12B261"></div><span>Low</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <button onclick="resetAllFilters()" style="width:100%;padding:8px;background:#F2C811;border:none;border-radius:4px;font-size:12px;font-weight:700;cursor:pointer;color:#252423">↺ Reset All Filters</button>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+
+    <!-- PAGE 0: Overview -->
+    <div class="page active" id="page-0">
+      <div class="canvas-header">
+        <div>
+          <div class="canvas-title">Executive Overview Dashboard</div>
+          <div class="canvas-subtitle" id="filter-summary">Showing all data · 700 records</div>
+        </div>
+        <div id="total-counter" style="font-size:13px;color:#8a8a8a"></div>
+      </div>
+
+      <!-- KPI Cards -->
+      <div class="kpi-grid">
+        <div class="kpi-card blue">
+          <div class="kpi-label">Total Sales</div>
+          <div class="kpi-value" id="kpi-sales">$118.7M</div>
+          <div class="kpi-sub">Net Revenue</div>
+          <div class="kpi-delta up" id="kpi-sales-delta">▲ 100% selected</div>
+        </div>
+        <div class="kpi-card green">
+          <div class="kpi-label">Gross Profit</div>
+          <div class="kpi-value" id="kpi-profit">$16.9M</div>
+          <div class="kpi-sub">After COGS</div>
+          <div class="kpi-delta up" id="kpi-margin-delta">▲ 14.2% margin</div>
+        </div>
+        <div class="kpi-card purple">
+          <div class="kpi-label">Total Units Sold</div>
+          <div class="kpi-value" id="kpi-units">1.13M</div>
+          <div class="kpi-sub">All products</div>
+          <div class="kpi-delta up">▲ Avg 1,608/txn</div>
+        </div>
+        <div class="kpi-card red">
+          <div class="kpi-label">Total COGS</div>
+          <div class="kpi-value" id="kpi-cogs">$101.8M</div>
+          <div class="kpi-sub">Cost of Goods Sold</div>
+          <div class="kpi-delta down" id="kpi-cogs-pct">▼ 85.8% of sales</div>
+        </div>
+      </div>
+
+      <!-- Row 2: Trend + Segment -->
+      <div class="charts-grid" style="grid-template-columns:3fr 2fr">
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <div>
+              <div class="chart-card-title">Sales vs Profit Trend</div>
+              <div class="chart-card-subtitle">Monthly performance by period</div>
+            </div>
+            <div class="chart-menu">
+              <button class="chart-btn active" onclick="switchTrend('sales',this)">Sales</button>
+              <button class="chart-btn" onclick="switchTrend('both',this)">Both</button>
+              <button class="chart-btn" onclick="switchTrend('profit',this)">Profit</button>
+            </div>
+          </div>
+          <div class="chart-wrap" style="height:200px"><canvas id="trendChart" role="img" aria-label="Monthly sales and profit trend chart"></canvas></div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <div>
+              <div class="chart-card-title">Sales by Segment</div>
+              <div class="chart-card-subtitle">Revenue contribution</div>
+            </div>
+          </div>
+          <div class="chart-wrap" style="height:160px"><canvas id="segmentDonut" role="img" aria-label="Sales by segment donut chart"></canvas></div>
+          <div class="legend-row" id="seg-legend"></div>
+        </div>
+      </div>
+
+      <!-- Row 3: Country + Discount + Margin -->
+      <div class="charts-grid">
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <div>
+              <div class="chart-card-title">Sales by Country</div>
+              <div class="chart-card-subtitle">Geographic distribution</div>
+            </div>
+          </div>
+          <div class="chart-wrap" style="height:200px"><canvas id="countryChart" role="img" aria-label="Horizontal bar chart of sales by country"></canvas></div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <div>
+              <div class="chart-card-title">Profit by Segment</div>
+              <div class="chart-card-subtitle">Profitability heatmap</div>
+            </div>
+          </div>
+          <div class="chart-wrap" style="height:200px"><canvas id="segmentProfitChart" role="img" aria-label="Profit by segment bar chart"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE 1: Geographic -->
+    <div class="page" id="page-1">
+      <div class="canvas-header">
+        <div>
+          <div class="canvas-title">Geographic Sales Analysis</div>
+          <div class="canvas-subtitle">Country-level performance breakdown</div>
+        </div>
+      </div>
+      <div class="kpi-grid" style="grid-template-columns:repeat(5,1fr)">
+        <div class="kpi-card" style="border-top-color:#F2C811">
+          <div class="kpi-label">🇺🇸 USA</div>
+          <div class="kpi-value" id="geo-usa-sales">$25.0M</div>
+          <div class="kpi-sub" id="geo-usa-p">Profit: $3.0M</div>
+        </div>
+        <div class="kpi-card" style="border-top-color:#118DFF">
+          <div class="kpi-label">🇨🇦 Canada</div>
+          <div class="kpi-value" id="geo-can-sales">$24.9M</div>
+          <div class="kpi-sub" id="geo-can-p">Profit: $3.5M</div>
+        </div>
+        <div class="kpi-card" style="border-top-color:#12B261">
+          <div class="kpi-label">🇫🇷 France</div>
+          <div class="kpi-value" id="geo-fra-sales">$24.4M</div>
+          <div class="kpi-sub" id="geo-fra-p">Profit: $3.8M</div>
+        </div>
+        <div class="kpi-card" style="border-top-color:#8764B8">
+          <div class="kpi-label">🇩🇪 Germany</div>
+          <div class="kpi-value" id="geo-ger-sales">$23.5M</div>
+          <div class="kpi-sub" id="geo-ger-p">Profit: $3.7M</div>
+        </div>
+        <div class="kpi-card" style="border-top-color:#E03B3B">
+          <div class="kpi-label">🇲🇽 Mexico</div>
+          <div class="kpi-value" id="geo-mex-sales">$20.9M</div>
+          <div class="kpi-sub" id="geo-mex-p">Profit: $2.9M</div>
+        </div>
+      </div>
+      <div class="charts-grid" style="margin-top:14px">
+        <div class="chart-card">
+          <div class="chart-card-header"><div class="chart-card-title">Sales Distribution by Country</div></div>
+          <div class="chart-wrap" style="height:260px"><canvas id="geoBarChart" role="img" aria-label="Sales by country bar chart"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-card-header"><div class="chart-card-title">Profit Margin by Country</div></div>
+          <div class="chart-wrap" style="height:260px"><canvas id="geoMarginChart" role="img" aria-label="Profit margin by country chart"></canvas></div>
+        </div>
+      </div>
+      <div class="chart-card" style="margin-top:14px">
+        <div class="chart-card-header"><div class="chart-card-title">Country × Segment Matrix (Sales $M)</div></div>
+        <div class="chart-wrap" style="height:240px"><canvas id="matrixChart" role="img" aria-label="Stacked bar chart showing sales by country and segment"></canvas></div>
+      </div>
+    </div>
+
+    <!-- PAGE 2: Product -->
+    <div class="page" id="page-2">
+      <div class="canvas-header">
+        <div>
+          <div class="canvas-title">Product Performance Analysis</div>
+          <div class="canvas-subtitle">Revenue, profit and discount analysis by product</div>
+        </div>
+      </div>
+      <div class="kpi-grid" style="grid-template-columns:repeat(6,1fr)">
+        <div class="kpi-card" style="border-top-color:#118DFF">
+          <div class="kpi-label">Paseo</div>
+          <div class="kpi-value" id="p-paseo">$33.0M</div>
+          <div class="kpi-sub">Profit: $4.8M</div>
+        </div>
+        <div class="kpi-card" style="border-top-color:#12B261">
+          <div class="kpi-label">VTT</div>
+          <div class="kpi-value" id="p-vtt">$20.5M</div>
+          <div class="kpi-sub">Profit: $3.0M</div>
+        </div>
+        <div class="kpi-card" style="border-top-color:#8764B8">
+          <div class="kpi-label">Velo</div>
+          <div class="kpi-value" id="p-velo">$18.3M</div>
+          <div class="kpi-sub">Profit: $2.3M</div>
+        </div>
+        <div class="kpi-card" style="border-top-color:#F2C811">
+          <div class="kpi-label">Amarilla</div>
+          <div class="kpi-value" id="p-amarilla">$17.7M</div>
+          <div class="kpi-sub">Profit: $2.8M</div>
+        </div>
+        <div class="kpi-card" style="border-top-color:#E03B3B">
+          <div class="kpi-label">Montana</div>
+          <div class="kpi-value" id="p-montana">$15.4M</div>
+          <div class="kpi-sub">Profit: $2.1M</div>
+        </div>
+        <div class="kpi-card" style="border-top-color:#00B8D9">
+          <div class="kpi-label">Carretera</div>
+          <div class="kpi-value" id="p-carretera">$13.8M</div>
+          <div class="kpi-sub">Profit: $1.8M</div>
+        </div>
+      </div>
+      <div class="charts-grid" style="margin-top:14px">
+        <div class="chart-card">
+          <div class="chart-card-header"><div class="chart-card-title">Revenue vs COGS by Product</div></div>
+          <div class="chart-wrap" style="height:260px"><canvas id="prodBarChart" role="img" aria-label="Product revenue vs COGS bar chart"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-card-header"><div class="chart-card-title">Profit Margin % by Product</div></div>
+          <div class="chart-wrap" style="height:260px"><canvas id="prodMarginChart" role="img" aria-label="Product profit margin percentage chart"></canvas></div>
+        </div>
+      </div>
+      <div class="charts-grid" style="margin-top:14px">
+        <div class="chart-card">
+          <div class="chart-card-header"><div class="chart-card-title">Discount Band Impact on Sales</div></div>
+          <div class="chart-wrap" style="height:200px"><canvas id="discountChart" role="img" aria-label="Discount band impact pie chart"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-card-header"><div class="chart-card-title">Discount Band Impact on Profit</div></div>
+          <div class="chart-wrap" style="height:200px"><canvas id="discountProfitChart" role="img" aria-label="Discount band profit chart"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE 3: Table -->
+    <div class="page" id="page-3">
+      <div class="canvas-header">
+        <div>
+          <div class="canvas-title">Segment Performance Summary Table</div>
+          <div class="canvas-subtitle">Aggregated metrics by segment with KPI targets</div>
+        </div>
+      </div>
+      <div class="chart-card" style="margin-bottom:14px">
+        <div class="chart-card-title" style="margin-bottom:12px">Performance by Segment</div>
+        <div class="table-wrap" id="seg-table-wrap"></div>
+      </div>
+      <div class="chart-card" style="margin-bottom:14px">
+        <div class="chart-card-title" style="margin-bottom:12px">Monthly Aggregates</div>
+        <div class="table-wrap" id="monthly-table-wrap"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const RAW = [
+  {seg:"Government",country:"Canada",prod:"Carretera",disc:"High",units:1618.5,mfgP:3,saleP:20,gross:32370,disc_amt:0,sales:32370,cogs:16185,profit:16185,date:"2014-01-01",mnum:1,mname:"January",year:2014},
+  {seg:"Government",country:"Germany",prod:"Carretera",disc:"High",units:1321,mfgP:3,saleP:20,gross:26420,disc_amt:0,sales:26420,cogs:13210,profit:13210,date:"2014-01-01",mnum:1,mname:"January",year:2014},
+  {seg:"Midmarket",country:"France",prod:"Carretera",disc:"High",units:2178,mfgP:3,saleP:15,gross:32670,disc_amt:0,sales:32670,cogs:21780,profit:10890,date:"2014-06-01",mnum:6,mname:"June",year:2014},
+  {seg:"Midmarket",country:"Germany",prod:"Carretera",disc:"High",units:888,mfgP:3,saleP:15,gross:13320,disc_amt:0,sales:13320,cogs:8880,profit:4440,date:"2014-06-01",mnum:6,mname:"June",year:2014},
+  {seg:"Midmarket",country:"Mexico",prod:"Carretera",disc:"High",units:2470,mfgP:3,saleP:15,gross:37050,disc_amt:0,sales:37050,cogs:24700,profit:12350,date:"2014-06-01",mnum:6,mname:"June",year:2014},
+  {seg:"Government",country:"Germany",prod:"Carretera",disc:"None",units:1513,mfgP:3,saleP:350,gross:529550,disc_amt:0,sales:529550,cogs:4539,profit:525011,date:"2014-12-01",mnum:12,mname:"December",year:2014},
+  {seg:"Midmarket",country:"Germany",prod:"Carretera",disc:"None",units:921,mfgP:3,saleP:15,gross:13815,disc_amt:0,sales:13815,cogs:9210,profit:4605,date:"2014-09-01",mnum:9,mname:"September",year:2014},
+  {seg:"Channel Partners",country:"Canada",prod:"Carretera",disc:"Low",units:2518,mfgP:3,saleP:12,gross:30216,disc_amt:1510.8,sales:28705.2,cogs:7554,profit:21151.2,date:"2014-03-01",mnum:3,mname:"March",year:2014},
+  {seg:"Government",country:"France",prod:"Carretera",disc:"Medium",units:1006,mfgP:3,saleP:350,gross:352100,disc_amt:35210,sales:316890,cogs:3018,profit:313872,date:"2014-07-01",mnum:7,mname:"July",year:2014},
+  {seg:"Channel Partners",country:"Germany",prod:"Carretera",disc:"Low",units:367,mfgP:3,saleP:12,gross:4404,disc_amt:220.2,sales:4183.8,cogs:1101,profit:3082.8,date:"2014-06-01",mnum:6,mname:"June",year:2014},
+  {seg:"Government",country:"Mexico",prod:"Carretera",disc:"Medium",units:1143,mfgP:3,saleP:350,gross:400050,disc_amt:40005,sales:360045,cogs:3429,profit:356616,date:"2014-07-01",mnum:7,mname:"July",year:2014},
+  {seg:"Small Business",country:"France",prod:"Carretera",disc:"Medium",units:417,mfgP:3,saleP:300,gross:125100,disc_amt:12510,sales:112590,cogs:1251,profit:111339,date:"2014-07-01",mnum:7,mname:"July",year:2014},
+  {seg:"Small Business",country:"Mexico",prod:"Carretera",disc:"Medium",units:788,mfgP:3,saleP:300,gross:236400,disc_amt:23640,sales:212760,cogs:2364,profit:210396,date:"2014-07-01",mnum:7,mname:"July",year:2014},
+  {seg:"Enterprise",country:"France",prod:"Carretera",disc:"None",units:1899,mfgP:3,saleP:125,gross:237375,disc_amt:0,sales:237375,cogs:5697,profit:231678,date:"2014-12-01",mnum:12,mname:"December",year:2014},
+  {seg:"Enterprise",country:"United States of America",prod:"Carretera",disc:"None",units:1545,mfgP:3,saleP:125,gross:193125,disc_amt:0,sales:193125,cogs:4635,profit:188490,date:"2014-12-01",mnum:12,mname:"December",year:2014},
+  {seg:"Small Business",country:"United States of America",prod:"Carretera",disc:"High",units:2828,mfgP:3,saleP:300,gross:848400,disc_amt:254520,sales:593880,cogs:8484,profit:585396,date:"2014-01-01",mnum:1,mname:"January",year:2014},
+];
+
+const MONTHLY_DATA = [
+  {year:2013,mnum:9,mname:"Sep",sales:4484000,profit:763603,cogs:3720397},
+  {year:2013,mnum:10,mname:"Oct",sales:9295611,profit:1657795,cogs:7637816},
+  {year:2013,mnum:11,mname:"Nov",sales:7267203,profit:765502,cogs:6501701},
+  {year:2013,mnum:12,mname:"Dec",sales:5368441,profit:691564,cogs:4676877},
+  {year:2014,mnum:1,mname:"Jan",sales:6607762,profit:814029,cogs:5793733},
+  {year:2014,mnum:2,mname:"Feb",sales:7297531,profit:1148547,cogs:6148984},
+  {year:2014,mnum:3,mname:"Mar",sales:5586860,profit:669867,cogs:4916993},
+  {year:2014,mnum:4,mname:"Apr",sales:6964775,profit:929985,cogs:6034790},
+  {year:2014,mnum:5,mname:"May",sales:6210211,profit:828640,cogs:5381571},
+  {year:2014,mnum:6,mname:"Jun",sales:9518894,profit:1473754,cogs:8045140},
+  {year:2014,mnum:7,mname:"Jul",sales:8102920,profit:923866,cogs:7179054},
+  {year:2014,mnum:8,mname:"Aug",sales:5864622,profit:791066,cogs:5073556},
+  {year:2014,mnum:9,mname:"Sep",sales:6398697,profit:1023132,cogs:5375565},
+  {year:2014,mnum:10,mname:"Oct",sales:12375820,profit:1781986,cogs:10593834},
+  {year:2014,mnum:11,mname:"Nov",sales:5384214,profit:604600,cogs:4779614},
+  {year:2014,mnum:12,mname:"Dec",sales:11998788,profit:2025766,cogs:9973022}
+];
+
+const SEG_DATA = [
+  {seg:"Government",sales:52504261,profit:11388173,units:470673,margin:21.69,color:"#118DFF"},
+  {seg:"Small Business",sales:42427919,profit:4143169,units:153139,margin:9.77,color:"#12B261"},
+  {seg:"Enterprise",sales:19611694,profit:-614546,units:168552,margin:-3.13,color:"#E03B3B"},
+  {seg:"Midmarket",sales:2381883,profit:660103,units:172178,margin:27.71,color:"#F2C811"},
+  {seg:"Channel Partners",sales:1800594,profit:1316803,units:161264,margin:73.13,color:"#8764B8"}
+];
+
+const COUNTRY_DATA = [
+  {country:"United States of America",flag:"🇺🇸",sales:25029830,profit:2995541,margin:11.97},
+  {country:"Canada",flag:"🇨🇦",sales:24887655,profit:3529229,margin:14.18},
+  {country:"France",flag:"🇫🇷",sales:24354172,profit:3781021,margin:15.53},
+  {country:"Germany",flag:"🇩🇪",sales:23505341,profit:3680389,margin:15.66},
+  {country:"Mexico",flag:"🇲🇽",sales:20949352,profit:2907523,margin:13.88}
+];
+
+const PROD_DATA = [
+  {prod:"Paseo",sales:33011144,profit:4797438,cogs:28213706,color:"#118DFF"},
+  {prod:"VTT",sales:20511921,profit:3034608,cogs:17477313,color:"#12B261"},
+  {prod:"Velo",sales:18250059,profit:2305992,cogs:15944067,color:"#8764B8"},
+  {prod:"Amarilla",sales:17747116,profit:2814104,cogs:14933012,color:"#F2C811"},
+  {prod:"Montana",sales:15390802,profit:2114755,cogs:13276047,color:"#E03B3B"},
+  {prod:"Carretera",sales:13815308,profit:1826805,cogs:11988503,color:"#00B8D9"}
+];
+
+const DISC_DATA = [
+  {band:"High",sales:45316141,profit:5125322,color:"#E03B3B"},
+  {band:"Medium",sales:38780431,profit:5579523,color:"#F2C811"},
+  {band:"Low",sales:34629779,profit:6188858,color:"#12B261"}
+];
+
+const MATRIX_DATA = {
+  countries:["USA","Canada","France","Germany","Mexico"],
+  segments:["Government","Small Business","Enterprise","Midmarket","Channel Partners"],
+  colors:["#118DFF","#12B261","#E03B3B","#F2C811","#8764B8"],
+  data:[
+    [11200000,10800000,8900000,12100000,9500000],
+    [8400000,9200000,8600000,7800000,8400000],
+    [3900000,4100000,3800000,3600000,4200000],
+    [450000,520000,480000,510000,420000],
+    [380000,270000,570000,490000,90000]
+  ]
+};
+
+let activeFilters = {year:["2013","2014"],segment:["Government","Small Business","Enterprise","Midmarket","Channel Partners"],country:["United States of America","Canada","France","Germany","Mexico"],product:["Paseo","VTT","Velo","Amarilla","Montana","Carretera"],discount:["High","Medium","Low"]};
+let charts = {};
+let trendMode = 'sales';
+
+function fmt(n){if(n>=1e9)return'$'+(n/1e9).toFixed(1)+'B';if(n>=1e6)return'$'+(n/1e6).toFixed(1)+'M';if(n>=1e3)return'$'+(n/1e3).toFixed(1)+'K';return'$'+Math.round(n)}
+function fmtN(n){if(n>=1e6)return(n/1e6).toFixed(2)+'M';if(n>=1e3)return(n/1e3).toFixed(1)+'K';return Math.round(n)}
+
+function filterSeg(){return SEG_DATA.filter(d=>activeFilters.segment.includes(d.seg))}
+function filterCountry(){return COUNTRY_DATA.filter(d=>activeFilters.country.includes(d.country))}
+function filterProd(){return PROD_DATA.filter(d=>activeFilters.product.includes(d.prod))}
+function filterDisc(){return DISC_DATA.filter(d=>activeFilters.discount.includes(d.band))}
+function filterMonthly(){return MONTHLY_DATA.filter(d=>activeFilters.year.includes(String(d.year)))}
+
+function toggleFilter(el){
+  el.classList.toggle('selected');
+  const type=el.dataset.filter, val=el.dataset.value;
+  const arr=activeFilters[type];
+  const idx=arr.indexOf(val);
+  if(idx>-1)arr.splice(idx,1); else arr.push(val);
+  updateAll();
+}
+
+function resetAllFilters(){
+  document.querySelectorAll('.chip').forEach(c=>{c.classList.add('selected')});
+  activeFilters={year:["2013","2014"],segment:["Government","Small Business","Enterprise","Midmarket","Channel Partners"],country:["United States of America","Canada","France","Germany","Mexico"],product:["Paseo","VTT","Velo","Amarilla","Montana","Carretera"],discount:["High","Medium","Low"]};
+  updateAll();
+}
+
+function updateAll(){
+  updateKPIs();
+  updateTrend();
+  updateSegmentDonut();
+  updateCountryChart();
+  updateSegmentProfitChart();
+  updateGeoCharts();
+  updateProdCharts();
+  updateDiscountCharts();
+  updateTables();
+}
+
+function updateKPIs(){
+  const segs=filterSeg(), ctrs=filterCountry(), prods=filterProd(), discs=filterDisc();
+  const totalSales=segs.reduce((a,b)=>a+b.sales,0);
+  const totalProfit=segs.reduce((a,b)=>a+b.profit,0);
+  const totalUnits=segs.reduce((a,b)=>a+b.units,0);
+  const totalCogs=prods.reduce((a,b)=>a+b.cogs,0);
+  const margin=totalSales>0?(totalProfit/totalSales*100).toFixed(1):0;
+  const cogsPct=totalSales>0?(totalCogs/totalSales*100).toFixed(1):0;
+  document.getElementById('kpi-sales').textContent=fmt(totalSales);
+  document.getElementById('kpi-profit').textContent=fmt(totalProfit);
+  document.getElementById('kpi-units').textContent=fmtN(totalUnits);
+  document.getElementById('kpi-cogs').textContent=fmt(totalCogs);
+  document.getElementById('kpi-margin-delta').textContent=(totalProfit>=0?'▲':'▼')+' '+margin+'% margin';
+  document.getElementById('kpi-margin-delta').className='kpi-delta '+(totalProfit>=0?'up':'down');
+  document.getElementById('kpi-cogs-pct').textContent='▼ '+cogsPct+'% of sales';
+  const n=segs.length;
+  document.getElementById('filter-summary').textContent='Showing '+n+' segment'+(n!==1?'s':'')+(ctrs.length<5?' · '+ctrs.length+' countries':'')+(prods.length<6?' · '+prods.length+' products':'');
+}
+
+function updateTrend(){
+  const monthly=filterMonthly();
+  const labels=monthly.map(d=>d.year%100+"'"+d.mname);
+  let datasets=[];
+  if(trendMode==='sales'||trendMode==='both'){
+    datasets.push({label:'Sales',data:monthly.map(d=>d.sales/1e6),borderColor:'#118DFF',backgroundColor:'rgba(17,141,255,0.08)',tension:.4,fill:true,borderWidth:2,pointRadius:3,pointBackgroundColor:'#118DFF'});
+  }
+  if(trendMode==='profit'||trendMode==='both'){
+    datasets.push({label:'Profit',data:monthly.map(d=>d.profit/1e6),borderColor:'#12B261',backgroundColor:'rgba(18,178,97,0.08)',tension:.4,fill:true,borderWidth:2,pointRadius:3,pointBackgroundColor:'#12B261',borderDash:trendMode==='both'?[4,3]:[]});
+  }
+  updateChart('trendChart','line',labels,datasets,{scales:{y:{ticks:{callback:v=>'$'+v.toFixed(1)+'M'},grid:{color:'rgba(0,0,0,.05)'}},x:{grid:{display:false},ticks:{font:{size:10}}}},plugins:{legend:{display:false}},responsive:true,maintainAspectRatio:false});
+}
+
+function updateSegmentDonut(){
+  const segs=filterSeg();
+  updateChart('segmentDonut','doughnut',segs.map(d=>d.seg),
+    [{data:segs.map(d=>d.sales/1e6),backgroundColor:segs.map(d=>d.color),borderWidth:2,borderColor:'#fff',hoverOffset:4}],
+    {plugins:{legend:{display:false}},responsive:true,maintainAspectRatio:false,cutout:'62%'});
+  const leg=document.getElementById('seg-legend');
+  leg.innerHTML=segs.map(d=>`<span class="legend-item"><span class="legend-dot" style="background:${d.color}"></span>${d.seg.split(' ')[0]} ${(d.sales/1e6).toFixed(1)}M</span>`).join('');
+}
+
+function updateCountryChart(){
+  const ctrs=filterCountry();
+  updateChart('countryChart','bar',ctrs.map(d=>d.country.replace('United States of America','USA')),
+    [{data:ctrs.map(d=>d.sales/1e6),backgroundColor:['#118DFF','#F2C811','#12B261','#8764B8','#E03B3B'].slice(0,ctrs.length),borderRadius:3,barThickness:20}],
+    {indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{ticks:{callback:v=>'$'+v+'M'},grid:{color:'rgba(0,0,0,.05)'}},y:{grid:{display:false},ticks:{font:{size:11}}}},responsive:true,maintainAspectRatio:false});
+}
+
+function updateSegmentProfitChart(){
+  const segs=filterSeg();
+  updateChart('segmentProfitChart','bar',segs.map(d=>d.seg.split(' ')[0]),
+    [{data:segs.map(d=>d.profit/1e6),backgroundColor:segs.map(d=>d.profit>=0?d.color:'#E03B3B'),borderRadius:4,barThickness:28}],
+    {plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>'$'+v.toFixed(1)+'M'},grid:{color:'rgba(0,0,0,.05)'}},x:{grid:{display:false}}},responsive:true,maintainAspectRatio:false});
+}
+
+function updateGeoCharts(){
+  const ctrs=filterCountry();
+  if(document.getElementById('geoBarChart')){
+    updateChart('geoBarChart','bar',ctrs.map(d=>d.flag+' '+d.country.replace('United States of America','USA')),
+      [{label:'Sales',data:ctrs.map(d=>d.sales/1e6),backgroundColor:'#118DFF',borderRadius:4},
+       {label:'Profit',data:ctrs.map(d=>d.profit/1e6),backgroundColor:'#12B261',borderRadius:4}],
+      {plugins:{legend:{display:true,position:'top',labels:{boxWidth:12,font:{size:11}}}},scales:{y:{ticks:{callback:v=>'$'+v+'M'},grid:{color:'rgba(0,0,0,.05)'}},x:{grid:{display:false}}},responsive:true,maintainAspectRatio:false});
+    updateChart('geoMarginChart','bar',ctrs.map(d=>d.flag+' '+d.country.replace('United States of America','USA')),
+      [{data:ctrs.map(d=>d.margin),backgroundColor:ctrs.map(d=>d.margin>15?'#12B261':d.margin>10?'#F2C811':'#E03B3B'),borderRadius:4,barThickness:32}],
+      {plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>v+'%'},grid:{color:'rgba(0,0,0,.05)'}},x:{grid:{display:false}}},responsive:true,maintainAspectRatio:false});
+
+    const geoMap={
+      "United States of America":{sales:"geo-usa-sales",prof:"geo-usa-p"},
+      "Canada":{sales:"geo-can-sales",prof:"geo-can-p"},
+      "France":{sales:"geo-fra-sales",prof:"geo-fra-p"},
+      "Germany":{sales:"geo-ger-sales",prof:"geo-ger-p"},
+      "Mexico":{sales:"geo-mex-sales",prof:"geo-mex-p"}
+    };
+    COUNTRY_DATA.forEach(c=>{
+      const ids=geoMap[c.country];
+      if(ids&&document.getElementById(ids.sales)){
+        document.getElementById(ids.sales).textContent=fmt(c.sales);
+        document.getElementById(ids.prof).textContent='Profit: '+fmt(c.profit);
+      }
+    });
+
+    if(document.getElementById('matrixChart')){
+      const segments=MATRIX_DATA.segments;
+      const colors=MATRIX_DATA.colors;
+      const labels=MATRIX_DATA.countries;
+      const datasets=segments.map((s,i)=>({label:s,data:MATRIX_DATA.data[i].map(v=>v/1e6),backgroundColor:colors[i],borderRadius:2}));
+      updateChart('matrixChart','bar',labels,datasets,{plugins:{legend:{display:true,position:'top',labels:{boxWidth:10,font:{size:10}}}},scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,ticks:{callback:v=>'$'+v+'M'},grid:{color:'rgba(0,0,0,.05)'}}},responsive:true,maintainAspectRatio:false});
+    }
+  }
+}
+
+function updateProdCharts(){
+  const prods=filterProd();
+  if(document.getElementById('prodBarChart')){
+    updateChart('prodBarChart','bar',prods.map(d=>d.prod),
+      [{label:'Sales',data:prods.map(d=>d.sales/1e6),backgroundColor:'#118DFF',borderRadius:3},
+       {label:'COGS',data:prods.map(d=>d.cogs/1e6),backgroundColor:'rgba(17,141,255,0.25)',borderRadius:3}],
+      {plugins:{legend:{display:true,position:'top',labels:{boxWidth:12,font:{size:11}}}},scales:{y:{ticks:{callback:v=>'$'+v+'M'},grid:{color:'rgba(0,0,0,.05)'}},x:{grid:{display:false}}},responsive:true,maintainAspectRatio:false});
+    const margins=prods.map(d=>(d.profit/d.sales*100).toFixed(1));
+    updateChart('prodMarginChart','bar',prods.map(d=>d.prod),
+      [{data:margins,backgroundColor:prods.map(d=>d.profit/d.sales>0.15?'#12B261':d.profit/d.sales>0.05?'#F2C811':'#E03B3B'),borderRadius:4}],
+      {plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>v+'%'},grid:{color:'rgba(0,0,0,.05)'}},x:{grid:{display:false}}},responsive:true,maintainAspectRatio:false});
+    const pNames=['p-paseo','p-vtt','p-velo','p-amarilla','p-montana','p-carretera'];
+    const pKeys=['Paseo','VTT','Velo','Amarilla','Montana','Carretera'];
+    pKeys.forEach((k,i)=>{
+      const p=PROD_DATA.find(d=>d.prod===k);
+      const el=document.getElementById(pNames[i]);
+      if(el&&p)el.textContent=fmt(p.sales);
+    });
+  }
+}
+
+function updateDiscountCharts(){
+  const discs=filterDisc();
+  if(document.getElementById('discountChart')){
+    updateChart('discountChart','pie',discs.map(d=>d.band),
+      [{data:discs.map(d=>d.sales/1e6),backgroundColor:discs.map(d=>d.color),borderWidth:2,borderColor:'#fff'}],
+      {plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:12,font:{size:11}}}},responsive:true,maintainAspectRatio:false});
+    updateChart('discountProfitChart','bar',discs.map(d=>d.band),
+      [{data:discs.map(d=>d.profit/1e6),backgroundColor:discs.map(d=>d.color),borderRadius:4,barThickness:40}],
+      {plugins:{legend:{display:false}},scales:{y:{ticks:{callback:v=>'$'+v+'M'},grid:{color:'rgba(0,0,0,.05)'}},x:{grid:{display:false}}},responsive:true,maintainAspectRatio:false});
+  }
+}
+
+function updateTables(){
+  const seg=filterSeg();
+  const maxSales=Math.max(...seg.map(d=>d.sales));
+  const tbody=seg.map(d=>{
+    const margin=(d.profit/d.sales*100).toFixed(1);
+    const barW=Math.round(d.sales/maxSales*120);
+    const mc=d.margin>20?'#e8f8ef;color:#12B261':d.margin>0?'#fff4cc;color:#9a6e00':'#fde8e8;color:#E03B3B';
+    return`<tr>
+      <td><span style="background:${d.color};color:#fff;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700">${d.seg}</span></td>
+      <td style="font-weight:600">${fmt(d.sales)}</td>
+      <td>${(d.sales/1e6).toFixed(1)}M <span class="bar-inline" style="width:${barW}px;background:${d.color};opacity:.4;vertical-align:middle"></span></td>
+      <td style="font-weight:600">${fmt(d.profit)}</td>
+      <td><span style="padding:2px 8px;border-radius:3px;font-size:11px;font-weight:700;background:${mc.split(';')[0].replace('background:','')};color:${mc.split(';')[1].replace('color:','')}">${margin}%</span></td>
+      <td>${fmtN(d.units)}</td>
+      <td>${fmt(d.sales-d.profit)}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('seg-table-wrap').innerHTML=`<table>
+    <thead><tr><th>Segment</th><th>Total Sales</th><th>Sales Trend</th><th>Net Profit</th><th>Margin</th><th>Units Sold</th><th>COGS</th></tr></thead>
+    <tbody>${tbody}</tbody>
+  </table>`;
+
+  const monthly=filterMonthly();
+  const mtbody=monthly.map(d=>{
+    const mg=(d.profit/d.sales*100).toFixed(1);
+    return`<tr>
+      <td style="font-weight:600">${d.year}</td>
+      <td>${d.mname}</td>
+      <td>${fmt(d.sales)}</td>
+      <td>${fmt(d.profit)}</td>
+      <td>${fmt(d.cogs)}</td>
+      <td><span style="padding:2px 6px;border-radius:3px;font-size:11px;background:${mg>15?'#e8f8ef':'#fff4cc'};color:${mg>15?'#12B261':'#9a6e00'}">${mg}%</span></td>
+    </tr>`;
+  }).join('');
+  document.getElementById('monthly-table-wrap').innerHTML=`<table>
+    <thead><tr><th>Year</th><th>Month</th><th>Sales</th><th>Profit</th><th>COGS</th><th>Margin</th></tr></thead>
+    <tbody>${mtbody}</tbody>
+  </table>`;
+}
+
+function updateChart(id,type,labels,datasets,options){
+  if(charts[id]){charts[id].destroy();delete charts[id];}
+  const canvas=document.getElementById(id);
+  if(!canvas)return;
+  charts[id]=new Chart(canvas,{type,data:{labels,datasets},options:{...options,animation:{duration:400}}});
+}
+
+function switchTrend(mode,btn){
+  trendMode=mode;
+  document.querySelectorAll('.chart-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  updateTrend();
+}
+
+let activePage=0;
+function switchPage(n,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.pbi-tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+n).classList.add('active');
+  btn.classList.add('active');
+  activePage=n;
+  setTimeout(()=>updateAll(),50);
+}
+
+updateAll();
+</script>
+</body>
+</html>
